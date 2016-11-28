@@ -4,6 +4,7 @@ var fetch = require('node-fetch');
 var redis = require('redis');
 
 var client = redis.createClient();
+var expire_time = 60 * 60 * 24;
 
 // if you'd like to select database 3, instead of 0 (default), call
 // client.select(3, function() { /* ... */ });
@@ -96,7 +97,7 @@ server.get('/commits/:date', function(req, res){
         return response.json();
       }).then(function(json){
         client.set(redis_key, JSON.stringify(json), redis.print);
-        client.expire(redis_key, 60 * 60);
+        client.expire(redis_key, expire_time);
         console.timeEnd('fetch_time');
         res.send(json);
       }).catch(function(ex){
@@ -134,7 +135,7 @@ server.get('/commits/:date/:sha', function(req, res){
         return response.json();
       }).then(function(json){
         client.set(redis_key, JSON.stringify(json), redis.print);
-        client.expire(redis_key, 60 * 60);
+        client.expire(redis_key, expire_time);
         console.timeEnd('fetch_time');
         res.send(json);
       }).catch(function(ex){
