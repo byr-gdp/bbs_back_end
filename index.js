@@ -17,7 +17,7 @@ client.on('error', function (err) {
 var server = restify.createServer();
 
 //support cors
-server.use(restify.CORS());
+// server.use(restify.CORS());
 
 //test
 // server.get('/hello/:name', respond);
