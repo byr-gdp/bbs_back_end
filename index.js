@@ -2,6 +2,7 @@
 var restify = require('restify');
 var fetch = require('node-fetch');
 var redis = require('redis');
+var moment = require('moment-timezone');
 
 var client = redis.createClient();
 var expire_time = 60 * 60 * 24;
@@ -13,61 +14,25 @@ client.on('error', function (err) {
     console.log('Error ' + err);
 });
 
-// client.set("string key", "string val", redis.print);
-// client.hset("hash key", "hashtest 1", "some value", redis.print);
-// client.hset(["hash key", "hashtest 2", "some other value"], redis.print);
-// client.hkeys("hash key", function (err, replies) {
-//     console.log(replies.length + " replies:");
-//     replies.forEach(function (reply, i) {
-//         console.log("    " + i + ": " + reply);
-//     });
-//     client.quit();
-// });
-
-//key: commits:2016-11-11
-//key: commit:sha
-// function check_redis(key){
-//   console.time('check_redis');
-//   client.get(key, function(err, reply){
-//     if(err){
-//       console.log('Error: ' + err + '\n');
-//       return false;
-//     }
-//     //redis is null
-//     if(!reply){
-//       console.log('not found the key');
-//       console.timeEnd('check_redis');
-//       return false;
-//     }else{
-//       client.ttl(key, function(err, data){
-//         console.log('found the key & ttl:' + data);
-//       });
-//       console.timeEnd('check_redis');
-//       return reply;
-//     }
-//   });
-// }
-
-function respond(req, res) {
-  // console.log(req.getQuery());
-  fetch('https://github.com/')
-    .then(function(res) {
-        return res.text();
-    }).then(function(body) {
-        console.log(body);
-        res.send(body);
-    });
-}
-
 var server = restify.createServer();
 
 //support cors
 server.use(restify.CORS());
 
 //test
-server.get('/hello/:name', respond);
-server.head('/hello/:name', respond);
+// server.get('/hello/:name', respond);
+// server.head('/hello/:name', respond);
 // server.get('/redis/:name', test_redis);
+
+server.get('/newvisitor', function(req, res){
+  var now = moment().tz('Asia/Shanghai').format().slice(0, 10);
+  client.incr(now, function(err, reply){
+    if(err){
+      return;
+    }
+    res.send(200, reply);
+  });
+});
 
 //返回指定日期 commits list
 server.get('/commits/:date', function(req, res){

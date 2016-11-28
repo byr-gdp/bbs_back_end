@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "moment-timezone": "^0.5.10",
     "node-fetch": "^1.6.3",
     "redis": "^2.6.3"
   }
